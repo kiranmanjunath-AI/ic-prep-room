@@ -6,7 +6,7 @@ deal team walks in.
 
 ## Live demo
 
-[View on GitHub Pages](https://YOUR_GITHUB_HANDLE.github.io/ic-prep-room)
+[View on GitHub Pages](https://kiranmanjunath-AI.github.io/ic-prep-room)
 
 ## Screenshots
 
@@ -38,7 +38,7 @@ time to identify weak assumptions. IC Prep Room solves this by surfacing:
 ## Getting started
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_HANDLE/ic-prep-room
+git clone https://github.com/kiranmanjunath-AI/ic-prep-room
 cd ic-prep-room
 open index.html
 ```
