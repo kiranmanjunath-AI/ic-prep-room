@@ -1,0 +1,1038 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+<title>IC Prep Room</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg:#EEF0F5; --surface:#FFFFFF; --raised:#E5E8F0; --border:#C8CDD8;
+  --text:#1A1E2C; --muted:#5A6070;
+  --infra:#9A6E12; --credit:#267A6C;
+  --b-agg:#C83030; --b-asm:#C07828; --b-con:#358058; --b-bmk:#4A70B8;
+  --deal:var(--infra);
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111318; --surface:#191D26; --raised:#1F2435; --border:#2D3346;
+    --text:#DDE2EE; --muted:#8892A8; --infra:#C68B2E; --credit:#3DA897;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111318; --surface:#191D26; --raised:#1F2435; --border:#2D3346;
+  --text:#DDE2EE; --muted:#8892A8; --infra:#C68B2E; --credit:#3DA897;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Syne',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:13px;}
+
+/* Layout */
+#app{display:flex;flex-direction:column;height:100vh;}
+#top-bar{height:52px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:0;flex-shrink:0;}
+#main-layout{flex:1;display:grid;grid-template-columns:196px 1fr 330px;overflow:hidden;}
+#section-nav{border-right:1px solid var(--border);overflow-y:auto;background:var(--surface);padding:12px 0;}
+#content-area{overflow-y:auto;padding:28px 40px;background:var(--bg);}
+.memo-inner{max-width:640px;margin:0 auto;}
+#right-panel{border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden;}
+#scenario-bar{border-top:1px solid var(--border);background:var(--surface);height:96px;flex-shrink:0;display:flex;align-items:center;padding:0 20px;gap:20px;overflow:hidden;}
+
+/* Top bar */
+.wordmark{font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-right:20px;}
+.deal-tabs{display:flex;gap:2px;background:var(--raised);border-radius:4px;padding:3px;}
+.deal-tab{padding:5px 13px;border-radius:3px;cursor:pointer;font-size:11.5px;font-weight:600;letter-spacing:.02em;color:var(--muted);border:none;background:transparent;transition:all .15s;font-family:'Syne',sans-serif;}
+.deal-tab.active{background:var(--deal);color:#fff;}
+.rec-chip{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:500;padding:4px 10px;border-radius:3px;letter-spacing:.04em;white-space:nowrap;}
+.rec-cond{background:rgba(212,144,58,.18);color:#D4903A;border:1px solid rgba(212,144,58,.35);}
+
+/* Nav */
+.nav-label{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 14px;margin:8px 0 4px;}
+.nav-item{display:flex;align-items:flex-start;gap:9px;padding:7px 14px;cursor:pointer;font-size:11.5px;font-weight:500;color:var(--muted);border-left:2px solid transparent;transition:all .12s;line-height:1.4;}
+.nav-item:hover{color:var(--text);background:var(--raised);}
+.nav-item.active{color:var(--deal);border-left-color:var(--deal);background:var(--raised);font-weight:600;}
+.nav-num{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--muted);flex-shrink:0;margin-top:1px;}
+
+/* Content */
+.section-eye{font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--deal);margin-bottom:6px;}
+.section-title{font-family:'Libre Baskerville',Georgia,serif;font-size:21px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:18px;text-wrap:balance;}
+.memo-body{font-family:'Libre Baskerville',Georgia,serif;font-size:13.5px;line-height:1.78;color:var(--text);}
+.memo-body p{margin-bottom:14px;}
+.data-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11.5px;margin:18px 0;font-variant-numeric:tabular-nums;}
+.data-table th{text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--border);}
+.data-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table .r{text-align:right;}
+.metrics-row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0;}
+.m-tile{background:var(--raised);border:1px solid var(--border);border-radius:4px;padding:9px 13px;min-width:90px;}
+.m-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.m-val{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:500;color:var(--text);}
+.m-sub{font-size:9px;color:var(--muted);margin-top:2px;}
+
+/* Badges */
+.bx{display:inline-flex;align-items:center;font-family:'Syne',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 5px;border-radius:2px;vertical-align:middle;margin:0 2px;white-space:nowrap;}
+.b-agg{background:rgba(200,48,48,.13);color:var(--b-agg);border:1px solid rgba(200,48,48,.28);}
+.b-asm{background:rgba(192,120,40,.13);color:var(--b-asm);border:1px solid rgba(192,120,40,.28);}
+.b-con{background:rgba(53,128,88,.13);color:var(--b-con);border:1px solid rgba(53,128,88,.28);}
+.b-bmk{background:rgba(74,112,184,.13);color:var(--b-bmk);border:1px solid rgba(74,112,184,.28);}
+
+/* Panel */
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.panel-tab{flex:1;padding:11px 4px;text-align:center;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--muted);cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;font-family:'Syne',sans-serif;transition:all .15s;}
+.panel-tab.active{color:var(--deal);border-bottom-color:var(--deal);}
+.panel-body{flex:1;overflow-y:auto;padding:14px;}
+
+/* Challenges */
+.ch-item{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid var(--border);}
+.ch-item:last-child{border-bottom:none;}
+.ch-num{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--deal);flex-shrink:0;margin-top:2px;font-weight:500;}
+.ch-body{}
+.ch-risk{display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+.ch-text{font-size:12px;line-height:1.55;color:var(--text);}
+
+/* Benchmarks */
+.bm-card{background:var(--raised);border:1px solid var(--border);border-radius:4px;padding:11px;margin-bottom:10px;}
+.bm-title{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.bm-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:11.5px;}
+.bm-row:last-child{border-bottom:none;}
+.bm-lbl{color:var(--muted);}
+.bm-val{font-family:'IBM Plex Mono',monospace;font-weight:500;font-variant-numeric:tabular-nums;}
+.this{color:var(--deal);font-weight:700;}
+
+/* Q&A */
+.qa-item{border:1px solid var(--border);border-radius:4px;margin-bottom:8px;overflow:hidden;}
+.qa-q{padding:9px 11px;font-size:11.5px;font-weight:600;color:var(--text);background:var(--raised);cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:7px;line-height:1.45;}
+.qa-arr{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--deal);flex-shrink:0;transition:transform .15s;}
+.qa-arr.open{transform:rotate(90deg);}
+.qa-a{padding:11px;font-size:11.5px;line-height:1.62;color:var(--muted);border-top:1px solid var(--border);display:none;}
+.qa-a.open{display:block;}
+.qa-a strong{color:var(--text);}
+.qa-divider{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:12px 0 6px;border-top:1px solid var(--border);margin-top:6px;}
+.qa-textarea{width:100%;background:var(--raised);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'Syne',sans-serif;font-size:12px;padding:8px 10px;resize:vertical;min-height:68px;}
+.qa-textarea:focus{outline:none;border-color:var(--deal);}
+.qa-submit{background:var(--deal);color:#fff;border:none;border-radius:3px;padding:7px 14px;font-family:'Syne',sans-serif;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.04em;margin-top:7px;display:block;margin-left:auto;}
+.qa-submit:hover{opacity:.84;}
+.qa-sent{font-size:11px;color:var(--b-con);margin-top:6px;display:none;}
+
+/* Scenario */
+.sc-label{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;margin-right:8px;align-self:center;}
+.sc-group{display:flex;flex-direction:column;gap:5px;min-width:130px;}
+.sc-name{font-size:9.5px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between;}
+.sc-val{font-family:'IBM Plex Mono',monospace;color:var(--text);font-size:10px;}
+input[type=range]{width:100%;height:3px;accent-color:var(--deal);cursor:pointer;}
+.sc-toggle{display:flex;background:var(--raised);border-radius:3px;padding:2px;gap:2px;}
+.sc-btn{padding:3px 8px;border-radius:2px;font-size:9.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);letter-spacing:.04em;transition:all .12s;font-family:'Syne',sans-serif;}
+.sc-btn.active{background:var(--deal);color:#fff;}
+.sc-out{margin-left:auto;display:flex;gap:18px;align-items:center;}
+.sc-metric{text-align:right;}
+.sc-mlbl{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.sc-mval{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:var(--deal);line-height:1.15;}
+.sc-mval.warn{color:var(--b-asm);}
+.sc-mval.bad{color:var(--b-agg);}
+.sc-msub{font-size:9px;color:var(--muted);}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+
+<div id="app">
+  <header id="top-bar">
+    <span class="wordmark">IC Prep</span>
+    <div class="deal-tabs" id="deal-tabs">
+      <button class="deal-tab active" onclick="switchDeal('nordwind')">NordWind Portfolio</button>
+      <button class="deal-tab" onclick="switchDeal('apex')">Apex Healthcare</button>
+    </div>
+    <span id="rec-chip" class="rec-chip rec-cond">PROCEED — CONDITIONAL</span>
+  </header>
+  <div id="main-layout">
+    <nav id="section-nav"></nav>
+    <main id="content-area"><div class="memo-inner" id="memo-inner"></div></main>
+    <aside id="right-panel">
+      <div class="panel-tabs" id="panel-tabs">
+        <button class="panel-tab active" onclick="switchTab('challenges')">Challenges</button>
+        <button class="panel-tab" onclick="switchTab('benchmarks')">Benchmarks</button>
+        <button class="panel-tab" onclick="switchTab('qa')">Q &amp; A</button>
+      </div>
+      <div class="panel-body" id="panel-body"></div>
+    </aside>
+  </div>
+  <div id="scenario-bar"></div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const DEALS = {
+
+nordwind: {
+  id:'nordwind', name:'NordWind Portfolio', type:'Infrastructure Equity',
+  color:'infra', rec:'PROCEED — CONDITIONAL',
+  sections:[
+    {
+      title:'Executive Summary',
+      content:`<div class="metrics-row">
+        <div class="m-tile"><div class="m-lbl">Enterprise Value</div><div class="m-val">€852m</div><div class="m-sub">€1.78m / MW</div></div>
+        <div class="m-tile"><div class="m-lbl">Equity Committed</div><div class="m-val">€256m</div><div class="m-sub">30% of EV</div></div>
+        <div class="m-tile"><div class="m-lbl">Base IRR</div><div class="m-val">9.5%</div><div class="m-sub">Downside: 7.1%</div></div>
+        <div class="m-tile"><div class="m-lbl">Hold Period</div><div class="m-val">12 yr</div><div class="m-sub">Exit Year 12</div></div>
+        <div class="m-tile"><div class="m-lbl">Distribution Yield</div><div class="m-val">6.2%</div><div class="m-sub">From Year 2</div></div>
+      </div>
+      <div class="memo-body">
+        <p>NordWind Portfolio comprises three operational onshore wind farms — Vindeby (Denmark, 180 MW), Klarälven (Sweden, 160 MW), and Skagerrak (Denmark, 140 MW) — totalling 480 MW of installed capacity. The assets are being acquired from a Scandinavian utility as part of a non-core divestiture. The Fund is seeking to deploy <span class="bx b-asm">Assumption</span>€256m of equity alongside €596m of senior project finance debt (70% LTV), targeting a base case equity IRR of <span class="bx b-bmk">Benchmark</span>9.5% net and a cash distribution yield of 6.2% per annum from Year 2 onward.</p>
+        <p>The investment thesis rests on four pillars: an established operational track record (average 11 years), significant revenue certainty through PPAs and Danish green certificate subsidies covering 57% of output through Year 8, partial CPI inflation linkage, and strong alignment with the Fund's liability-driven investment mandate. <span class="bx b-asm">Assumption</span>A refinancing in Year 7 is modelled at 275bps, a key sensitivity given the 7-year forward projection into an uncertain rate environment. The IC is requested to approve a commitment of up to €256m subject to the four conditions set out in Section 9.</p>
+      </div>`,
+      challenges:[
+        {risk:'Return Risk',text:'Is the headline 9.5% IRR presented net of management fees, carried interest, and fund-level expenses? The net-of-all-costs IRR for the Fund\'s LP position may be materially different.'},
+        {risk:'Benchmark',text:'How does the 9.5% base IRR compare to the Fund\'s current infrastructure allocation weighted average IRR? Is this additive to or dilutive of portfolio returns?'},
+        {risk:'Structural',text:'The memo requests approval for "up to €256m." What triggers a lower deployment and what approval is needed if a co-investor is introduced?'},
+        {risk:'Mandate',text:'Does the Fund\'s IPS explicitly permit 70% LTV on infrastructure equity? Some mandates cap project-level leverage for pension fund direct infrastructure investments.'}
+      ],
+      benchmarks:[
+        {title:'Infrastructure Equity IRR — Core/Core+ Vintage 2020–2022',rows:[
+          {lbl:'Top Quartile (Q1)',val:'11.8–13.2%'},
+          {lbl:'Median',val:'9.1–10.4%'},
+          {lbl:'Bottom Quartile (Q3)',val:'7.0–8.2%'},
+          {lbl:'This deal (base)',val:'9.5%',this:true},
+          {lbl:'Fund minimum threshold',val:'7.0%'},
+        ]},
+        {title:'EV/MW — European Onshore Wind (Brownfield)',rows:[
+          {lbl:'High (subsidy-rich)',val:'€1.9–2.2m/MW'},
+          {lbl:'Mid (mixed)',val:'€1.4–1.8m/MW'},
+          {lbl:'Low (merchant)',val:'€0.9–1.3m/MW'},
+          {lbl:'This deal',val:'€1.78m/MW',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Asset Overview',
+      content:`<div class="memo-body">
+        <p>The three wind farms were commissioned between 2012 and 2016 and have operated with aggregate availability factors consistently above 97%, in line with the industry benchmark for well-maintained onshore assets. Combined P50 annual energy production (AEP) is 1,647 GWh. The portfolio is technically homogeneous: all turbines are <span class="bx b-con">Conservative</span>Vestas V117 3.45MW models, simplifying O&amp;M management and component sourcing. Current O&amp;M is contracted to Vestas under a full-scope service agreement expiring in Year 5.</p>
+        <p>Revenue divides into three streams: (i) Danish Green Certificate subsidies (31% of revenue, expiring Years 6 and 8 for Vindeby and Skagerrak respectively), (ii) long-term PPAs with Nordic utilities at €68–74/MWh (26% of revenue, weighted average 8.2 years remaining), and (iii) <span class="bx b-agg">Aggressive</span>merchant sales on NordPool at a base case €72/MWh escalating at 1.5% p.a. (43% of revenue). The weighted average contract life across subsidised and PPA revenue is 7.1 years.</p>
+      </div>
+      <table class="data-table"><thead><tr><th>Asset</th><th>MW</th><th>Vintage</th><th class="r">P50 AEP (GWh)</th><th class="r">Contract Cover</th><th class="r">Subsidy Expiry</th></tr></thead>
+      <tbody>
+        <tr><td>Vindeby</td><td>180</td><td>2013</td><td class="r">617</td><td class="r">61%</td><td class="r">Year 6</td></tr>
+        <tr><td>Klarälven</td><td>160</td><td>2016</td><td class="r">548</td><td class="r">54%</td><td class="r">Year 13 (SE)</td></tr>
+        <tr><td>Skagerrak</td><td>140</td><td>2012</td><td class="r">482</td><td class="r">57%</td><td class="r">Year 8</td></tr>
+        <tr><td><strong>Total</strong></td><td><strong>480</strong></td><td>—</td><td class="r"><strong>1,647</strong></td><td class="r"><strong>57%</strong></td><td class="r">—</td></tr>
+      </tbody></table>`,
+      challenges:[
+        {risk:'Technology Risk',text:'The turbines average 11 years of age. Has an independent technical report specifically assessed blade leading-edge erosion — a growing issue for Vestas V117s in their 10th+ year that can reduce energy yield by 2–5% and requires €80–120k per turbine to remediate?'},
+        {risk:'O&M Risk',text:'The full-scope Vestas O&M agreement expires in Year 5. What is the estimated re-contracting cost at market terms in Year 5, and how is O&M cost inflation modelled in Years 6–12?'},
+        {risk:'Revenue Risk',text:'43% of revenue is merchant with no floor. What is the revenue impact in Year 9 — the first full year of full merchant exposure for Vindeby — under a NordPool price of €55/MWh?'},
+        {risk:'Data Quality',text:'P50 AEP is based on which independent energy assessor\'s wind resource study? What period does it cover, and has it been updated to reflect any post-2020 shifts in Scandinavian wind patterns?'}
+      ],
+      benchmarks:[
+        {title:'European Onshore Wind — Capacity Factors',rows:[
+          {lbl:'Scandinavia (onshore) P50',val:'28–34%'},
+          {lbl:'Scandinavia (onshore) P90',val:'23–28%'},
+          {lbl:'NordWind portfolio P50 (implied)',val:'~39%',this:true},
+          {lbl:'Note: 39% is above typical range — verify AEP basis',val:''},
+        ]},
+        {title:'O&M Cost Benchmarks — Onshore Wind',rows:[
+          {lbl:'Industry avg (per MW/yr)',val:'€40–55k'},
+          {lbl:'Aging assets 10–15yr (per MW/yr)',val:'€55–75k'},
+          {lbl:'Memo assumption (per MW/yr)',val:'€58k',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Market & Regulatory Context',
+      content:`<div class="memo-body">
+        <p>NordPool System Price averaged €68.4/MWh in 2025. Independent long-run marginal cost (LRMC) models (Wood Mackenzie, Aurora Energy Research) project a price corridor of €62–85/MWh through 2035, anchored by the marginal cost of new offshore wind at approximately €65/MWh. The base case merchant price assumption of <span class="bx b-asm">Assumption</span>€72/MWh sits mid-range within this corridor but represents a 5.3% premium to the 2025 average — implying the model forecasts modest near-term price recovery.</p>
+        <p>Danish renewable energy policy provides a strong institutional backdrop: existing installations are protected from retroactive subsidy changes under Danish Energy Agency policy. However, the subsidy expiry profile creates a <span class="bx b-agg">Aggressive</span>revenue cliff in Years 6 and 8, transitioning Vindeby and Skagerrak to full merchant exposure. Swedish Elcertificat coverage of Klarälven through Year 13 provides a partial offset. The primary regulatory risk is not direct modification of existing subsidies but future changes to merchant market structure — specifically, capacity mechanisms that could compress price cannibalisation risk from accelerating offshore wind additions in the Baltic region.</p>
+      </div>`,
+      challenges:[
+        {risk:'Market Risk',text:'The base case merchant price of €72/MWh assumes a 5% uplift over the 2025 average. What is the basis for this recovery assumption given the structural trend of offshore wind capacity additions compressing NordPool average prices?'},
+        {risk:'Regulatory Risk',text:'Has legal counsel confirmed that the Danish Green Certificate agreements contain no retroactive change-of-law provisions that could allow subsidy modification before the contracted expiry date?'},
+        {risk:'Cannibalisation',text:'The Baltic offshore pipeline adds approximately 8 GW by 2030. Has the merchant price model been stress-tested against the cannibalisation effect this capacity will have on Swedish and Danish hourly prices — particularly during high-wind periods when the portfolio generates most of its output?'},
+        {risk:'Policy Risk',text:'Germany\'s recent capacity market discussions could reshape Nordic power price dynamics. Has the model accounted for potential price linkage effects between the CE and Nordic markets if coupling deepens?'}
+      ],
+      benchmarks:[
+        {title:'NordPool System Price — Historical & Forecast',rows:[
+          {lbl:'2023 average',val:'€94/MWh'},
+          {lbl:'2024 average',val:'€73/MWh'},
+          {lbl:'2025 average',val:'€68/MWh'},
+          {lbl:'Base case assumption',val:'€72/MWh',this:true},
+          {lbl:'Wood Mackenzie P50 2027',val:'€70–78/MWh'},
+          {lbl:'Aurora downside 2027',val:'€56–62/MWh'},
+        ]}
+      ]
+    },
+    {
+      title:'Financial Model',
+      content:`<div class="memo-body">
+        <p>The financial model projects total equity distributions of €498m over the 12-year hold period, generating a <span class="bx b-asm">Assumption</span>1.95x equity multiple on €256m invested. Annual EBITDA grows from €78.4m in Year 1 to a peak of €92.1m in Year 7 before contracting to <span class="bx b-agg">Aggressive</span>€71.3m in Year 9 as subsidies expire; the model assumes merchant price recovery to €83/MWh by Year 10 to partially offset the revenue cliff.</p>
+        <p>Debt service is structured against a senior project finance facility (€596m, EURIBOR + 200bps, 15-year maturity) targeting a base case DSCR of 1.45x. A mandatory 100% cash sweep applies in any year where DSCR falls below 1.40x. The model flags <span class="bx b-agg">Aggressive</span>two years (Year 8 and Year 9) where DSCR compresses to 1.38x and 1.31x respectively under P90 wind — the latter breaching the 1.35x covenant minimum. Distributions to the Fund are projected from Year 2, with a cash yield rising from 6.2% to 8.1% by Year 5, before potentially pausing in Years 8–9 under the base case cash sweep.</p>
+      </div>
+      <table class="data-table"><thead><tr><th>Year</th><th class="r">EBITDA (€m)</th><th class="r">Debt Service</th><th class="r">DSCR</th><th class="r">Distribution</th></tr></thead>
+      <tbody>
+        <tr><td>Y1</td><td class="r">78.4</td><td class="r">36.2</td><td class="r">2.16x</td><td class="r">€15.9m</td></tr>
+        <tr><td>Y2</td><td class="r">81.1</td><td class="r">36.1</td><td class="r">2.25x</td><td class="r">€15.9m</td></tr>
+        <tr><td>Y5</td><td class="r">89.3</td><td class="r">35.8</td><td class="r">2.49x</td><td class="r">€20.7m</td></tr>
+        <tr><td>Y7</td><td class="r">92.1</td><td class="r">20.4</td><td class="r">4.51x</td><td class="r">€24.1m</td></tr>
+        <tr><td>Y8</td><td class="r">75.2</td><td class="r">21.6</td><td class="r" style="color:var(--b-asm)">1.38x ⚠</td><td class="r">€0 (sweep)</td></tr>
+        <tr><td>Y9</td><td class="r">71.3</td><td class="r">21.8</td><td class="r" style="color:var(--b-agg)">1.31x ✕</td><td class="r">€0 (sweep)</td></tr>
+        <tr><td>Y12 (exit)</td><td class="r">88.4</td><td class="r">22.1</td><td class="r">4.00x</td><td class="r">+Exit €481m</td></tr>
+      </tbody></table>`,
+      challenges:[
+        {risk:'Model Integrity',text:'The DSCR in Year 9 is modelled at 1.31x under the base case — already breaching the 1.35x covenant without any stress applied. Has the presenting team modelled the cure mechanism and estimated the cost of a covenant waiver or amendment in Year 9?'},
+        {risk:'Revenue Cliff',text:'The model shows EBITDA dropping €16.9m between Year 7 and Year 8 as subsidies expire. What is the DSCR under a combined P90 wind year and €60/MWh merchant price in Year 9 — a simultaneous stress that is plausible, not extreme?'},
+        {risk:'Exit Assumption',text:'The exit EV at Year 12 is based on what multiple? An asset entering full merchant exposure in its 20th year of operation will attract a materially different buyer universe than a contracted asset — has the exit multiple been stress-tested for a 1.5–2.0 turn compression?'},
+        {risk:'Distribution Gap',text:'Years 8–9 show zero distributions under the cash sweep. How does the Fund model this 2-year income gap for ALM purposes, and what is the estimated impact on liability coverage?'}
+      ],
+      benchmarks:[
+        {title:'DSCR Thresholds — Senior Infrastructure Debt',rows:[
+          {lbl:'Conservative (investment grade)',val:'≥ 1.60x'},
+          {lbl:'Typical (core infra)',val:'1.35–1.55x'},
+          {lbl:'Covenant minimum (typical)',val:'1.20–1.35x'},
+          {lbl:'This deal — base case Y9',val:'1.31x',this:true},
+          {lbl:'This deal covenant floor',val:'1.35x'},
+        ]}
+      ]
+    },
+    {
+      title:'Debt Structure',
+      content:`<div class="memo-body">
+        <p>The acquisition will be financed with €596m of senior project finance debt arranged by Nordea and ING, structured as a 15-year amortising term loan with a sculpted repayment profile. The facility carries a blended structure: 40% of principal is hedged via a 10-year interest rate swap at 3.65%, with the remainder floating at <span class="bx b-asm">Assumption</span>EURIBOR + 200bps. The all-in blended cost at close is approximately 5.8%.</p>
+        <p>Financial covenants include: minimum DSCR 1.35x (semi-annual testing), minimum LLCR 1.10x, maximum LTV 75% (annual), and a debt service reserve account equivalent to 6 months of debt service (~€18m). A distribution lock-up applies when DSCR is below 1.40x. The transaction model assumes a <span class="bx b-agg">Aggressive</span>refinancing in Year 7 at 275bps over EURIBOR — a 7-year forward projection on credit market conditions that represents a significant model assumption. At close, €420m of principal will remain outstanding at Year 7, and the refinancing spread directly drives IRR by approximately 0.9pp per 100bps.</p>
+      </div>`,
+      challenges:[
+        {risk:'Refinancing Risk',text:'The Year 7 refinancing at 275bps is the single most sensitive variable in the returns model (0.9pp IRR per 100bps). Current equivalent infrastructure spreads are 220–280bps — meaning the base case assumes no spread widening over 7 years. What is the Fund\'s view on infrastructure credit spread evolution to 2032?'},
+        {risk:'Rate Hedge',text:'Only 40% of the debt is hedged at 3.65%. The remaining 60% is floating. Has the presenting team modelled the debt service impact if EURIBOR stays at 3.5%+ through Year 5 rather than falling to the 2.5% implied in the base case?'},
+        {risk:'Covenant Tightness',text:'The LLCR minimum of 1.10x provides very limited headroom. Under what scenario (energy yield + price) does the LLCR test create a restriction on distribution before the DSCR test triggers?'},
+        {risk:'Reserve Adequacy',text:'A 6-month DSRA (~€18m) is the covenant minimum. Given the O&M re-contracting risk at Year 5 and the subsidy cliff at Year 6, is 6 months sufficient — or should the Fund negotiate a 12-month reserve as a closing condition?'}
+      ],
+      benchmarks:[
+        {title:'European Infrastructure Debt Spreads — Senior Secured',rows:[
+          {lbl:'Core (regulated, investment grade)',val:'150–220bps'},
+          {lbl:'Core+ (contracted renewables)',val:'200–280bps'},
+          {lbl:'Value-add (merchant exposure)',val:'280–380bps'},
+          {lbl:'This deal close (200bps)',val:'200bps',this:true},
+          {lbl:'Year 7 refi assumption',val:'275bps',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Risk Analysis',
+      content:`<div class="memo-body">
+        <p>The primary risk vector for this transaction is the revenue cliff associated with Danish Green Certificate subsidy expiry in Years 6 and 8. At full merchant exposure, portfolio revenue becomes directly correlated with NordPool prices, which face structural downward pressure from accelerating Baltic offshore wind additions. The base case assumes merchant prices of <span class="bx b-asm">Assumption</span>€72/MWh escalating at 1.5% p.a. — a projection broadly in line with Wood Mackenzie's base but above Aurora Energy Research's base of €66/MWh for 2027–2030.</p>
+        <p>Technology risk is assessed as <span class="bx b-con">Conservative</span>moderate by the presenting team. The Vestas V117 turbines are a proven platform; however, the portfolio's average age of 11 years brings increasing probability of gearbox failures and blade leading-edge erosion in Years 8–12. The current full-scope O&amp;M contract provides protection until Year 5 only. Counterparty and regulatory risks are assessed as low. FX risk is minimal given EUR denomination throughout. The presenting team does not model a scenario combining a P90 wind year with depressed merchant prices — a gap the IC should address as a closing condition.</p>
+      </div>
+      <table class="data-table"><thead><tr><th>Risk</th><th>Severity</th><th>Mitigant</th></tr></thead>
+      <tbody>
+        <tr><td>Merchant price decline</td><td style="color:var(--b-agg)">High</td><td>PPA/subsidy covers 57% through Y8</td></tr>
+        <tr><td>Subsidy expiry cliff</td><td style="color:var(--b-agg)">High</td><td>No direct mitigant; model shows DSCR breach</td></tr>
+        <tr><td>Refinancing risk (Y7)</td><td style="color:var(--b-asm)">Medium-High</td><td>Interest rate swap on 40% of debt</td></tr>
+        <tr><td>Technology / O&amp;M</td><td style="color:var(--b-asm)">Medium</td><td>Vestas FSA to Y5; capex reserve Y6+</td></tr>
+        <tr><td>Counterparty (utility)</td><td style="color:var(--b-con)">Low</td><td>Investment-grade Nordic utilities</td></tr>
+        <tr><td>Regulatory (retroactive)</td><td style="color:var(--b-con)">Low</td><td>Confirmed by Danish Energy Agency</td></tr>
+      </tbody></table>`,
+      challenges:[
+        {risk:'Stress Testing',text:'The risk matrix omits a combined stress scenario: P90 wind year + 20% merchant price decline + 50bps DSCR covenant breach. The presenting team considers this a tail risk — but all three conditions are plausible simultaneously, particularly in Years 8–9. Has this combined scenario been modelled?'},
+        {risk:'Technology',text:'The memo notes blade leading-edge erosion as a "known risk" but provides no inspection data. A degraded blade can reduce energy yield by 2–5% for 2–3 years before scheduled maintenance rectifies it. This is not reflected in the P90 AEP — is it?'},
+        {risk:'O&M Re-pricing',text:'Full-scope O&M re-contracting in Year 5 is at market risk. Industry data suggests re-contracting for 10–15 year old turbines costs 35–50% more per MWh than the original FSA rate. What is the modelled O&M cost step-up and how does it affect DSCR in Years 6–8?'},
+        {risk:'Concentration',text:'Two of the three farms (Vindeby, Skagerrak) are in Denmark and face the same subsidy expiry calendar. Is the risk register adequately reflecting the correlated nature of the merchant cliff across the two largest assets?'}
+      ],
+      benchmarks:[
+        {title:'Infrastructure Deal Risk Classification — Peer Comparison',rows:[
+          {lbl:'Core brownfield (regulated, contracted)',val:'Low–Medium'},
+          {lbl:'Core+ brownfield (long-term PPA)',val:'Medium'},
+          {lbl:'Value-add (significant merchant)',val:'Medium–High'},
+          {lbl:'This deal classification',val:'Med–High',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Sensitivity Analysis',
+      content:`<div class="memo-body">
+        <p>Three scenarios are presented. The <strong>base case</strong> assumes P50 energy yield, €72/MWh merchant price, and Year 7 refinancing at 275bps — generating a 9.5% equity IRR and 1.95x multiple. The <strong>upside</strong> (P50, €82/MWh, 225bps refi) generates 11.2% IRR and 2.2x. The <strong>downside</strong> (P90, €62/MWh, 375bps refi) generates 7.1% IRR and 1.65x, remaining above the Fund's 7.0% minimum threshold by a margin of 10bps.</p>
+        <p>A stress test combining <span class="bx b-agg">Aggressive</span>P90 wind conditions, a 25% merchant price decline, and a 450bps refinancing spread generates a 5.8% IRR — below the minimum threshold — but requires the simultaneous occurrence of three adverse scenarios. The presenting team characterises this as a tail risk. Notably, <span class="bx b-agg">Aggressive</span>no scenario models a combined energy yield and price stress in the same year, and no scenario explicitly addresses the Year 9 DSCR covenant breach under the base case. Use the scenario tool below to explore sensitivities interactively.</p>
+      </div>
+      <table class="data-table"><thead><tr><th>Scenario</th><th class="r">IRR</th><th class="r">Multiple</th><th class="r">Min DSCR</th><th class="r">Dist. Y1–5</th></tr></thead>
+      <tbody>
+        <tr><td>Upside</td><td class="r" style="color:var(--b-con)">11.2%</td><td class="r">2.20x</td><td class="r">1.52x</td><td class="r">€89m</td></tr>
+        <tr><td>Base Case</td><td class="r">9.5%</td><td class="r">1.95x</td><td class="r" style="color:var(--b-asm)">1.31x</td><td class="r">€79m</td></tr>
+        <tr><td>Downside</td><td class="r" style="color:var(--b-asm)">7.1%</td><td class="r">1.65x</td><td class="r" style="color:var(--b-agg)">1.04x</td><td class="r">€55m</td></tr>
+        <tr><td>Stress (tail)</td><td class="r" style="color:var(--b-agg)">5.8%</td><td class="r">1.48x</td><td class="r" style="color:var(--b-agg)">0.91x</td><td class="r">€31m</td></tr>
+      </tbody></table>`,
+      challenges:[
+        {risk:'Scenario Gap',text:'None of the four scenarios model a combined P90 wind year and below-base merchant price in the same year. In reality, low wind years and low power price environments can be correlated (less wind = less renewable supply, but demand is also lower in warmer low-wind periods). Has the presenting team modelled a correlated stress?'},
+        {risk:'Downside Threshold',text:'The downside IRR of 7.1% is only 10bps above the Fund\'s 7.0% minimum. This means any single additional stress — a 25bps wider refinancing spread, a one-year delay in merchant price recovery — would breach the threshold. Is the 10bps margin adequate?'},
+        {risk:'DSCR Covenant',text:'The base case shows a minimum DSCR of 1.31x in Year 9 — which already breaches the 1.35x covenant. Is the downside scenario showing 1.04x DSCR modelling an accelerated debt repayment under enforcement, or is this simply a scenario where the covenant is breached without a remedy?'},
+        {risk:'Exit Multiple',text:'What exit EV/EBITDA multiple is assumed across scenarios? A merchant-heavy asset in Year 12 will likely trade at a lower multiple than a contracted asset — has the exit multiple been differentiated across scenarios?'}
+      ],
+      benchmarks:[
+        {title:'Infra Equity IRR Sensitivity — Published Studies',rows:[
+          {lbl:'Typical IRR range (core renewable)',val:'7–12%'},
+          {lbl:'Pension fund hurdle (typical)',val:'6.5–7.5%'},
+          {lbl:'This deal downside vs hurdle',val:'+10bps',this:true},
+          {lbl:'Prior fund vintage avg (wind)',val:'9.8%'},
+        ]}
+      ]
+    },
+    {
+      title:'Portfolio Fit',
+      content:`<div class="memo-body">
+        <p>NordWind aligns with the Fund's infrastructure mandate in three respects: long-duration assets matching pension liability duration (12-year hold, 22-year remaining concession life), partial CPI inflation linkage through subsidy escalation, and geographic diversification into Nordic markets where the Fund has no current exposure. The Fund's IPS permits up to 15% allocation to infrastructure; the current allocation is <span class="bx b-con">Conservative</span>12.1% (€1.4bn). Committing €256m would bring the allocation to 14.3%, within mandate limits but with limited headroom for further near-term infrastructure deployment.</p>
+        <p>One concentration concern: the Fund's existing renewable energy exposure (€312m across two solar investments) would increase to <span class="bx b-agg">Aggressive</span>€568m post-close — 39% of the infrastructure sleeve — introducing meaningful merchant power price correlation across the portfolio. The IC should consider whether this concentration is intentional (a deliberate view on European power prices) or inadvertent accumulation.</p>
+      </div>`,
+      challenges:[
+        {risk:'Concentration',text:'Adding NordWind would bring renewables to 39% of the infrastructure sleeve and introduce correlated merchant power price risk across three investments. Does the Fund\'s IPS include a sub-asset-class concentration limit within the infrastructure allocation?'},
+        {risk:'ALM Impact',text:'The 2-year distribution gap in Years 8–9 creates a liability mismatch at a specific point in the Fund\'s payment schedule. Has the ALM team modelled this gap against projected liability cash flows in the same period?'},
+        {risk:'Liquidity',text:'Infrastructure equity is illiquid by nature. Committing €256m to a 12-year hold brings the Fund\'s total illiquid allocation to what percentage of AUM, and how does this compare to the Fund\'s liquidity policy limits?'},
+        {risk:'Vintage Diversification',text:'Are the Fund\'s other infrastructure assets already weighted toward a similar vintage (2023–2026 acquisition)? Adding another same-vintage exposure concentrates the portfolio in assets that will face exit simultaneously.'}
+      ],
+      benchmarks:[
+        {title:'Fund Infrastructure Allocation — Current vs Post-Close',rows:[
+          {lbl:'Current infra allocation',val:'12.1% / €1.40bn'},
+          {lbl:'Post-close allocation',val:'14.3% / €1.66bn',this:true},
+          {lbl:'IPS maximum',val:'15.0%'},
+          {lbl:'Renewables (current)',val:'€312m (22% of sleeve)'},
+          {lbl:'Renewables (post-close)',val:'€568m (34% of sleeve)',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Recommendation',
+      content:`<div class="memo-body">
+        <p>The investment team recommends <strong>PROCEED — CONDITIONAL</strong> on four conditions: (i) independent blade inspection report confirming no material leading-edge erosion across all three sites; (ii) legal confirmation that Danish Green Certificate agreements contain no retroactive change-of-law provisions; (iii) interest rate hedging strategy confirmed and executed for the floating portion of the debt prior to close, covering at minimum Years 1–7; and (iv) the sensitivity analysis updated to present a combined P90 / −20% merchant price stress in the same year, with DSCR profiled annually — this scenario must be submitted to the IC before final signing authorisation.</p>
+        <p>Subject to these conditions, NordWind Portfolio represents a compelling long-duration infrastructure equity opportunity at a <span class="bx b-con">Conservative</span>below-ceiling allocation of 14.3%. The primary risk — the subsidy cliff in Years 6–8 — is real and not fully mitigated by the base case scenario; the IC should price this risk explicitly and confirm that a 7.1% downside IRR with only 10bps of headroom above the Fund minimum is acceptable before approving the commitment.</p>
+      </div>`,
+      challenges:[
+        {risk:'Condition Enforceability',text:'The four conditions are presented as IC requirements but are they legally binding closing conditions in the term sheet, or internal advisory conditions that the deal team can waive? The IC should confirm the conditions are documented as hard CPs in the transaction documentation.'},
+        {risk:'Timeline',text:'When is the blade inspection expected to complete, and does the transaction timeline allow adequate time for the IC to review the findings before commitment?'},
+        {risk:'Residual Risk',text:'Even if all four conditions are met, the Year 9 DSCR breach under the base case remains. Is there a fifth condition requiring the debt documentation to include a cure mechanism for a Year 9 covenant breach — or is the IC accepting this risk?'},
+        {risk:'Precedent',text:'What was the Fund\'s realised IRR on its two existing solar infrastructure investments and how did those compare to the base case IRRs presented at IC? Understanding the track record on prior infra deals helps calibrate confidence in the current model.'}
+      ],
+      benchmarks:[
+        {title:'Deal Conditions — Market Practice',rows:[
+          {lbl:'Technical report (blade inspection)',val:'Standard CP for aging wind'},
+          {lbl:'Legal confirmation (subsidy)',val:'Standard CP for DK assets'},
+          {lbl:'Rate hedging executed at close',val:'Standard CP (common)'},
+          {lbl:'Scenario resubmission to IC',val:'Uncommon — reflects model gaps',this:true},
+        ]}
+      ]
+    }
+  ],
+  qa:[
+    {
+      q:'What happens to the IRR if merchant electricity prices are 20% below the base case assumption after Year 8 when subsidies expire?',
+      a:`<strong>The IRR compresses materially, but the precise impact depends on the timing.</strong> Under a P50 wind year with merchant prices at €57.6/MWh (20% below the base case €72/MWh from Year 8 onward), the equity IRR compresses from 9.5% to approximately <strong>7.6%</strong> — still above the Fund's 7.0% minimum, but with only 60bps of headroom. A simultaneous P90 wind year brings the estimated IRR to <strong>6.9%</strong>, which breaches the minimum threshold. More critically, the DSCR in Years 8–9 under this combined scenario falls to approximately <strong>1.08–1.15x</strong>, well below the 1.35x covenant floor — triggering a mandatory debt renegotiation or enforcement process. <br><br>The presenting team should be asked to run this combined scenario explicitly and show the DSCR waterfall annually from Year 7 onward. The IC should also ask: under a covenant breach in Year 9, what is the estimated cost of a waiver or amendment from the lending syndicate, and who bears that cost?`,
+      open:true
+    },
+    {
+      q:'The Year 7 refinancing is modelled at 275bps. How conservative is this assumption given today\'s market and the 7-year forward projection?',
+      a:`<strong>The 275bps assumption is at the wide end of today's range but not implausible as a forward assumption.</strong> Current senior infrastructure debt for comparable wind assets in Europe (brownfield, mixed contracted/merchant) is pricing at 220–280bps over EURIBOR for investment-grade credits. The base case assumption of 275bps therefore implies no spread tightening relative to today — a conservative stance in the near term but potentially optimistic over a 7-year horizon during which credit cycles can turn. <br><br>The key sensitivity: every 100bps of additional refinancing spread costs approximately <strong>€4.2m in annual debt service</strong> and compresses IRR by <strong>~0.9pp</strong>. At 450bps (stress scenario), IRR falls to approximately 7.2% — above the minimum but eroding most of the base case premium. The IC should ask: (i) whether the presenting team has obtained indicative terms from the arranging banks for the Year 7 refi, and (ii) whether an interest rate cap or floor can be negotiated into the current facility documentation to limit refinancing exposure.`,
+      open:false
+    },
+    {
+      q:'The turbines average 11 years old. What is the capex budget for mid-life refurbishment and has blade leading-edge erosion been independently assessed?',
+      a:`<strong>The memo budgets €2.8m p.a. in maintenance capex, rising to €4.5m in Years 8–12</strong> — broadly consistent with industry benchmarks of €40–60k/MW for aging Vestas V117 turbines. However, the memo does not specifically address blade leading-edge erosion (LEE), a growing issue for turbines in their 10th+ year that can reduce energy yield by 2–5% and requires €80–120k per turbine to remediate via leading-edge protection (LEP) coating or blade replacement. <br><br>For the NordWind portfolio (139 turbines across three sites), a full LEP programme would cost approximately <strong>€11–17m</strong> if required — not budgeted in the current capex schedule. More importantly, LEE-degraded blades produce lower AEP during the degradation period, which could further compress DSCR in the already-vulnerable Years 8–9. <strong>The IC should require an independent blade inspection report as a closing condition</strong>, covering not just structural integrity but leading-edge erosion status and estimated remediation costs per turbine.`,
+      open:false
+    },
+    {
+      q:'Does this deal introduce renewable energy concentration risk at the portfolio level, and is the 39% renewables weighting within the infrastructure sleeve acceptable?',
+      a:`<strong>Post-close, the Fund would hold €568m in renewable energy assets — 34% of the infrastructure sleeve and 4.9% of total AUM.</strong> The existing solar investments (€312m) and NordWind share a common risk driver: merchant power prices. While solar and wind generation profiles are partially offsetting (different generation hours, different seasonal patterns), both assets are exposed to the same structural trend of falling power prices as renewable capacity additions accelerate across Europe. <br><br>Whether 34% concentration in one sub-sector of an alternative asset class is acceptable depends on the Fund's IPS and the IC's explicit risk appetite. Two questions worth raising: (i) Does the IPS specify a sub-sector concentration limit within the infrastructure allocation? If not, should the IC approve one prospectively? (ii) If European power prices fall 25% by 2030 — a plausible scenario under aggressive renewable build-out — what is the combined impact on NordWind and the two solar assets simultaneously? The presenting team should prepare a consolidated renewables stress scenario across all three investments before the IC approves a third correlated exposure.`,
+      open:false
+    }
+  ]
+},
+
+// ─────────────────────────────────────────────────────────────────────────────
+apex: {
+  id:'apex', name:'Apex Healthcare Group', type:'Private Credit — Senior Secured Unitranche',
+  color:'credit', rec:'PROCEED — CONDITIONAL',
+  sections:[
+    {
+      title:'Executive Summary',
+      content:`<div class="metrics-row">
+        <div class="m-tile"><div class="m-lbl">Facility Size</div><div class="m-val">€220m</div><div class="m-sub">+ €25m RCF</div></div>
+        <div class="m-tile"><div class="m-lbl">Pricing</div><div class="m-val">E+575</div><div class="m-sub">OID 98.5</div></div>
+        <div class="m-tile"><div class="m-lbl">Gross Yield</div><div class="m-val">~10.2%</div><div class="m-sub">All-in at close</div></div>
+        <div class="m-tile"><div class="m-lbl">Leverage</div><div class="m-val">5.2x</div><div class="m-sub">6.2x reported</div></div>
+        <div class="m-tile"><div class="m-lbl">DSCR</div><div class="m-val">2.2x</div><div class="m-sub">Min cov: 1.75x</div></div>
+      </div>
+      <div class="memo-body">
+        <p>Apex Healthcare Group ('Apex') is a European healthcare staffing business providing permanent and temporary placement of clinical professionals — primarily nurses, physicians, and allied health workers — across Germany, the Netherlands, Belgium, and France. Backed by Meridian Partners, Apex is refinancing its capital structure following a bolt-on acquisition (AMS Médical, France) completed in Q2 2025. The Fund is asked to provide <span class="bx b-asm">Assumption</span>€220m senior secured unitranche at EURIBOR + 575bps, OID 98.5, for a gross all-in yield of approximately 10.2%. The Fund targets a loss-adjusted net yield of 9.1%.</p>
+        <p>The credit thesis rests on: structural demand from nursing shortages in the DACH region (estimated 90,000 unfilled clinical positions in Germany as of Q1 2026), high revenue visibility through hospital framework agreements, the sponsor's track record on two prior Apex realisations (2.1x average), and a first-lien security package. Key credit concern: <span class="bx b-agg">Aggressive</span>leverage of 5.2x on adjusted EBITDA (6.2x on reported) sits above the European direct lending median for healthcare services and rests on €8.2m of non-recurring addbacks that have appeared in every year of the available financials.</p>
+      </div>`,
+      challenges:[
+        {risk:'Credit Risk',text:'The headline leverage of 5.2x is calculated on adjusted EBITDA of €50.2m. On reported EBITDA of €42.0m, leverage is 6.2x. Which figure will the maintenance covenant test use, and what is the legal definition of "Consolidated EBITDA" in the draft credit agreement?'},
+        {risk:'Return Risk',text:'The gross yield of 10.2% implies a loss-adjusted yield of 9.1% — a 110bps expected loss assumption. What default rate and recovery rate are embedded in this expected loss figure, and how do they compare to the Fund\'s private credit portfolio default history?'},
+        {risk:'Benchmark',text:'How does the 10.2% gross yield compare to the current market for comparable senior secured unitranches (healthcare services, 5x+ leverage, European)? Has the Fund considered whether the spread adequately compensates for the leverage premium relative to the sector median of 4.8x?'},
+        {risk:'Mandate',text:'Does committing €220m to a single credit bring any single-name concentration above the Fund\'s private credit IPS limit?'}
+      ],
+      benchmarks:[
+        {title:'European Direct Lending Spreads — Healthcare (2025–2026)',rows:[
+          {lbl:'4.0–4.5x leverage',val:'EURIBOR + 425–500bps'},
+          {lbl:'4.5–5.0x leverage',val:'EURIBOR + 500–550bps'},
+          {lbl:'5.0–5.5x leverage',val:'EURIBOR + 550–625bps'},
+          {lbl:'This deal (5.2x adj.)',val:'EURIBOR + 575bps',this:true},
+        ]},
+        {title:'Healthcare Staffing — Leverage at Entry (European DL)',rows:[
+          {lbl:'Median net leverage',val:'4.8x'},
+          {lbl:'75th percentile',val:'5.5x'},
+          {lbl:'This deal (adjusted)',val:'5.2x',this:true},
+          {lbl:'This deal (reported)',val:'6.2x',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Borrower Overview',
+      content:`<div class="memo-body">
+        <p>Apex Healthcare Group was founded in 2008 as a Germany-focused nursing agency and has grown to a four-country platform through organic expansion and five bolt-on acquisitions. LTM revenue as of June 2026 is €380m: Germany 58% (€220m), Netherlands 24% (€91m), Belgium 11% (€42m), and France 7% (€27m). The most recent acquisition — AMS Médical (France, completed May 2025) — added €62m of revenue and represents Apex's entry into a new market with a different regulatory and labour market framework.</p>
+        <p>Revenue splits between permanent placement (43%, ~18% EBITDA margin) and temporary staffing (57%, ~8% EBITDA margin). The Company has approximately 1,200 internal employees and a registered pool of 28,500 active healthcare professionals. <span class="bx b-agg">Aggressive</span>Top 10 hospital group clients represent 41% of revenue — a concentration level that creates material client retention risk and limits pricing power in contract renewal negotiations. The sponsor, Meridian Partners, has owned Apex since 2021 and is now on its third ownership cycle of the business (prior owners achieved 2.1x average realisation).</p>
+      </div>
+      <table class="data-table"><thead><tr><th>Geography</th><th class="r">Revenue</th><th class="r">% of Total</th><th class="r">Business Type</th><th class="r">Regulatory Risk</th></tr></thead>
+      <tbody>
+        <tr><td>Germany</td><td class="r">€220m</td><td class="r">58%</td><td class="r">Perm + Temp</td><td class="r" style="color:var(--b-con)">Low</td></tr>
+        <tr><td>Netherlands</td><td class="r">€91m</td><td class="r">24%</td><td class="r">Perm + Temp</td><td class="r" style="color:var(--b-con)">Low</td></tr>
+        <tr><td>Belgium</td><td class="r">€42m</td><td class="r">11%</td><td class="r">Temp</td><td class="r" style="color:var(--b-asm)">Medium</td></tr>
+        <tr><td>France</td><td class="r">€27m</td><td class="r">7%</td><td class="r">Perm + Temp</td><td class="r" style="color:var(--b-asm)">Medium</td></tr>
+      </tbody></table>`,
+      challenges:[
+        {risk:'Client Concentration',text:'Top 10 clients = 41% of revenue. What is the largest single client as a percentage of revenue, and what is the remaining contract term on that client\'s framework agreement? A non-renewal of the top 1–2 clients could materially impair EBITDA.'},
+        {risk:'Integration Risk',text:'AMS Médical (France) was acquired only 13 months ago. Healthcare staffing acquisitions carry significant recruiter churn risk post-integration. What was the recruiter retention rate at AMS Médical in the 12 months post-close, and has France achieved the projected EBITDA run-rate?'},
+        {risk:'Organic Growth',text:'The company\'s historical revenue growth of 12% p.a. includes acquisitions. Organic growth is approximately 4% p.a. — below the European healthcare staffing market growth rate of 6–8%. Why is Apex growing below market on an organic basis despite operating in a supply-constrained environment?'},
+        {risk:'Ownership Cycle',text:'This is the third ownership cycle of Apex, with prior owners achieving 2.1x average. A business on its third PE ownership cycle has typically been through significant financial engineering already. Is there remaining operational upside, or is this primarily a carry trade on leverage?'}
+      ],
+      benchmarks:[
+        {title:'Healthcare Staffing — EBITDA Margins (European)',rows:[
+          {lbl:'Permanent placement peers',val:'15–22%'},
+          {lbl:'Temporary staffing peers',val:'6–10%'},
+          {lbl:'Blended (perm/temp mix)',val:'10–14%'},
+          {lbl:'Apex (reported)',val:'11.1%',this:true},
+          {lbl:'Apex (adjusted)',val:'13.2%',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Industry & Market',
+      content:`<div class="memo-body">
+        <p>The European healthcare staffing market is valued at approximately €38bn and growing at 6–8% annually, driven by structural nursing shortages across Western Europe. Germany has introduced mandatory nursing staff ratios in hospital settings (effective 2024), directly increasing demand for compliant agency staffing from operators with large registered professional pools — a <span class="bx b-con">Conservative</span>regulatory tailwind for scale players like Apex.</p>
+        <p>The competitive landscape is fragmented: the top five players collectively hold approximately 28% market share, with the remainder split among hundreds of regional operators. Consolidation is ongoing but faces a structural constraint — skilled recruiter retention is the primary differentiator, and acquirers frequently experience churn post-acquisition. Belgium has introduced <span class="bx b-agg">Aggressive</span>temporary staffing margin caps effective Q3 2026 that could compress EBITDA in that market (currently 11% of revenue). The French market (7% of revenue) operates under a different collective bargaining framework that increases labour cost volatility relative to the DACH core.</p>
+      </div>`,
+      challenges:[
+        {risk:'Belgium Regulatory',text:'Belgium\'s new temporary staffing margin caps took effect in Q3 2026 — the same period as the closing of this transaction. Has the presenting team quantified the EBITDA impact on the Belgian business, and has this been reflected in the LTM EBITDA basis for the leverage calculation?'},
+        {risk:'France Risk',text:'The French healthcare labour market operates under sector-wide collective bargaining agreements (CCN). Upcoming CCN renegotiations in 2027 could increase base labour costs materially. Has the model stress-tested a 5% increase in French placement costs?'},
+        {risk:'Market Position',text:'Apex claims a "strong market position" in the DACH region but holds approximately 3–4% market share in a €38bn market. Is this position genuinely defensible (pricing power, exclusive contracts, proprietary talent pool) or is it scale without structural moat?'},
+        {risk:'Demand Tailwind',text:'The nursing shortage is a demand tailwind — but it also drives up the cost of placing nurses (higher pay rates, signing bonuses, relocation costs), compressing agency margins. Is the EBITDA bridge adequately reflecting the cost inflation on the supply side?'}
+      ],
+      benchmarks:[
+        {title:'European Healthcare Staffing — Market Context',rows:[
+          {lbl:'Market size (2025)',val:'~€38bn'},
+          {lbl:'Market growth (2022–2025)',val:'6.8% CAGR'},
+          {lbl:'Apex organic growth',val:'~4% pa',this:true},
+          {lbl:'Germany: unfilled nursing roles (Q1 2026)',val:'~90,000'},
+          {lbl:'Belgium: new margin cap (temp staffing)',val:'Effective Q3 2026'},
+        ]}
+      ]
+    },
+    {
+      title:'Credit Analysis',
+      content:`<div class="memo-body">
+        <p>Apex's reported LTM EBITDA is €42.0m on revenue of €380m (11.1% margin). The presenting team adjusts to <span class="bx b-agg">Aggressive</span>€50.2m by adding back €8.2m of items characterised as non-recurring: €3.4m integration costs (AMS Médical), €2.8m ERP implementation charges, and €2.0m management incentive scheme costs. Critically, restructuring and exceptional charges appeared in <strong>all three</strong> years of the available financials (FY2022: €6.1m, FY2023: €7.4m, FY2024: €8.2m), showing an upward trend — suggesting these costs may be structural rather than one-time.</p>
+        <p>Liquidity at close: €18.4m cash plus €25m undrawn RCF = €43.4m total liquidity. Annual interest cost at close is approximately <span class="bx b-asm">Assumption</span>€20.4m (EURIBOR 3.5% + 5.75% × €220m) plus €0.5m amortisation — total annual debt service ~€20.9m. Free cash flow conversion has averaged 71% over three years, generating approximately €29–36m FCF pa on adjusted EBITDA of €50m. Deleveraging is modest: leverage reduces to approximately 4.8x only if EBITDA reaches €54m+ by Year 3 with no further acquisitions.</p>
+      </div>
+      <table class="data-table"><thead><tr><th>Metric</th><th class="r">FY2023A</th><th class="r">FY2024A</th><th class="r">LTM 2026</th></tr></thead>
+      <tbody>
+        <tr><td>Revenue (€m)</td><td class="r">292</td><td class="r">341</td><td class="r">380</td></tr>
+        <tr><td>EBITDA reported (€m)</td><td class="r">30.1</td><td class="r">36.6</td><td class="r">42.0</td></tr>
+        <tr><td>Addbacks (€m)</td><td class="r">6.1</td><td class="r">7.4</td><td class="r" style="color:var(--b-agg)">8.2</td></tr>
+        <tr><td>EBITDA adjusted (€m)</td><td class="r">36.2</td><td class="r">44.0</td><td class="r">50.2</td></tr>
+        <tr><td>Net leverage (adj.)</td><td class="r">—</td><td class="r">—</td><td class="r" style="color:var(--b-asm)">5.2x</td></tr>
+        <tr><td>Net leverage (reported)</td><td class="r">—</td><td class="r">—</td><td class="r" style="color:var(--b-agg)">6.2x</td></tr>
+        <tr><td>Interest cover (DSCR)</td><td class="r">—</td><td class="r">—</td><td class="r">2.2x</td></tr>
+      </tbody></table>`,
+      challenges:[
+        {risk:'EBITDA Quality',text:'The €8.2m of non-recurring addbacks have appeared in all three historical years with an upward trend (€6.1m, €7.4m, €8.2m). If these costs are indeed structural, the correct credit leverage is 6.2x reported — materially above the 5.2x being used to price and structure the deal. The IC should require a line-by-line breakdown of every addback item with evidence that each will not recur in Year 1.'},
+        {risk:'ERP Costs',text:'The €2.8m ERP implementation charge in the LTM addbacks — is this the full ERP programme cost or one year\'s cost? ERP implementations in multi-country businesses typically run over 3–5 years. If €2.8m recurs in Years 1–2 of the loan, reported EBITDA will be understated relative to the credit model.'},
+        {risk:'FCF Conversion',text:'71% FCF conversion on adjusted EBITDA implies approximately €35.6m FCF at the LTM adjusted EBITDA level. However, the model uses adjusted EBITDA for leverage but presumably reported EBITDA-derived FCF for debt service. Is the FCF model internally consistent between the leverage and DSCR calculations?'},
+        {risk:'Belgium Impact',text:'The LTM period pre-dates the Belgian margin cap (effective Q3 2026). Has the LTM EBITDA been adjusted to reflect the prospective EBITDA impact from Belgium, or is this a forward risk that will only appear in Year 1 actuals?'}
+      ],
+      benchmarks:[
+        {title:'EBITDA Addback Quality — European DL Benchmarks',rows:[
+          {lbl:'Typical addback quantum (DL)',val:'3–6% of EBITDA'},
+          {lbl:'Apex addback (% of adj. EBITDA)',val:'16.3%',this:true},
+          {lbl:'Avg addback frequency (recurring?)',val:'1–2 year occurrence'},
+          {lbl:'Apex addback frequency',val:'3 consecutive years',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Deal Terms & Structure',
+      content:`<div class="memo-body">
+        <p>The financing package comprises: (i) €220m senior secured unitranche term loan at EURIBOR + 575bps, OID 98.5, 5-year maturity with 2 × 1-year extension options, with 1% per annum cash amortisation; and (ii) €25m super-senior revolving credit facility at EURIBOR + 300bps, 5-year maturity. The sponsor requested a <span class="bx b-agg">Aggressive</span>PIK toggle right which the Fund declined — an important protection given the leverage profile. Total closing proceeds to the borrower: approximately €216.7m (reflecting OID on €220m face value).</p>
+        <p>Security package: (i) first-priority share pledge over Apex Group Holding BV (Netherlands) and all material subsidiaries; (ii) first-priority assignment of all material contracts and framework agreements; (iii) first-priority floating charge over assets of the German and Dutch operating entities; (iv) first-priority assignment of bank accounts. The Netherlands holding company jurisdiction provides <span class="bx b-con">Conservative</span>efficient enforcement under Dutch insolvency law relative to German or Belgian alternatives. No second lien or subordinated layer exists in this structure.</p>
+      </div>`,
+      challenges:[
+        {risk:'OID Economics',text:'OID of 98.5 means the Fund deploys €216.7m but earns interest on €220m face value — generating an effective yield uplift of approximately 30bps on a 5-year maturity. If the borrower exercises extension options, the OID amortisation period extends and the effective yield dilutes. Has the model accurately reflected the OID uplift under the extension scenarios?'},
+        {risk:'Security Value',text:'The security package pledges shares and contracts — primarily intangible assets. In a healthcare staffing business, the "assets" are workforce relationships and client contracts that may evaporate in an enforcement scenario. Has independent counsel assessed the enforceability and retention value of the pledged framework agreements in a Dutch enforcement?'},
+        {risk:'RCF Super-Senior',text:'The €25m RCF ranks super-senior to the €220m TL in enforcement. This means in a distress scenario, the RCF provider (likely a bank) is repaid first from asset proceeds before the Fund receives anything. If the RCF is fully drawn at enforcement, the Fund\'s effective recovery is reduced by €25m before the first pence is returned. Has the recovery analysis explicitly deducted the super-senior RCF?'},
+        {risk:'Extension Options',text:'The borrower (not the lender) controls the extension option. What conditions must be met for the extension to be exercised? Is there a clean-up call pricing step-up if extension is exercised, providing the Fund adequate compensation for holding a higher-risk, lower-rated credit in Years 6–7?'}
+      ],
+      benchmarks:[
+        {title:'Unitranche Pricing — European Healthcare (2025–2026)',rows:[
+          {lbl:'4–5x leverage',val:'EURIBOR + 475–540bps'},
+          {lbl:'5–5.5x leverage',val:'EURIBOR + 550–625bps'},
+          {lbl:'5.5–6x leverage',val:'EURIBOR + 625–700bps'},
+          {lbl:'This deal (5.2x adj.)',val:'EURIBOR + 575bps',this:true},
+          {lbl:'Market OID range',val:'98.0–99.0'},
+          {lbl:'This deal OID',val:'98.5',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Covenant Package',
+      content:`<div class="memo-body">
+        <p>Financial maintenance covenants, tested quarterly: (i) maximum net leverage: <span class="bx b-asm">Assumption</span>6.5x (entry headroom on adjusted basis: 1.3x turns; on reported basis: only 0.3x turns); (ii) minimum interest coverage: 1.75x (entry headroom: 0.45x versus current 2.2x DSCR). Incurrence covenants restrict additional debt to 0.5x incremental (capped at 5.75x total), permitted acquisitions below €30m annually, and capex limited to €8m p.a.</p>
+        <p>Equity cure: the Sponsor has cure rights permitting equity injection to cure a leverage covenant breach up to 3 times during the loan life, with a maximum of 2 in consecutive periods. The cure amount is <span class="bx b-agg">Aggressive</span>added to EBITDA rather than used to repay debt — a borrower-friendly mechanic that the Fund did not successfully negotiate against. Portability: the TL may transfer to a Qualifying Financial Sponsor (PE sponsor, >€2bn AUM, >2 healthcare investments) at existing pricing and leverage, subject to no Material Adverse Change and maintenance covenants passing pro forma — effectively allowing a secondary buyout without a mandatory repayment event.</p>
+      </div>`,
+      challenges:[
+        {risk:'Covenant Headroom',text:'The maximum leverage covenant of 6.5x provides only 0.3x of headroom on the reported EBITDA basis — meaning a single quarter of EBITDA underperformance (e.g., Belgium margin compression or a key recruiter departure) could trigger a covenant breach. The IC should ask whether the credit agreement allows EBITDA addbacks in the covenant calculation — and if so, what caps apply.'},
+        {risk:'Equity Cure',text:'The equity cure mechanic adds the cure amount to EBITDA rather than reducing debt — allowing the Sponsor to cure a leverage covenant breach without actually deleveraging the business. The Fund should insist that cured amounts reduce outstanding principal. Has this been renegotiated in the final term sheet?'},
+        {risk:'EBITDA Definition',text:'What is the precise "Consolidated EBITDA" definition in the covenant? Does it include the same €8.2m of addbacks used to calculate entry leverage? If so, the covenant is tested on adjusted EBITDA — meaning the 1.3x adjusted headroom (6.5x − 5.2x) is the correct test, but a future audit of addback legitimacy could narrow this to near zero.'},
+        {risk:'Portability Risk',text:'The portability provision allows a secondary buyout without triggering a mandatory repayment. This means the Fund could find itself holding a loan to a new Sponsor who did not negotiate the original terms and may seek to renegotiate at earliest opportunity. Should a portability exercise require a minimum spread step-up (e.g. +25bps) to compensate the Fund for the change-of-control risk?'}
+      ],
+      benchmarks:[
+        {title:'Maintenance Covenant Headroom — Market Norms',rows:[
+          {lbl:'Typical leverage covenant headroom',val:'1.0–2.0x turns over entry'},
+          {lbl:'This deal (adj. basis)',val:'1.3x',this:true},
+          {lbl:'This deal (reported basis)',val:'0.3x',this:true},
+          {lbl:'Typical DSCR covenant headroom',val:'0.5–1.0x over entry'},
+          {lbl:'This deal DSCR headroom',val:'0.45x',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Downside & Recovery Analysis',
+      content:`<div class="memo-body">
+        <p>In a base downside scenario (15% EBITDA decline to €42.7m from the adjusted base), leverage rises to 6.1x and DSCR falls to 1.53x — both within covenant limits. In a <span class="bx b-agg">Aggressive</span>severe downside (35% EBITDA decline to €32.6m), leverage breaches the 6.5x covenant in Year 2, triggering a cure or restructuring event. The presenting team estimates recovery value at €145–170m (3.0–3.5x stressed EBITDA of €32.6m), implying 66–77% recovery on the €220m facility.</p>
+        <p>The Fund's internal model uses a more conservative 2.5x stressed EBITDA multiple and deducts estimated enforcement costs of €8m plus the super-senior RCF (€25m drawn), arriving at recovery of approximately <span class="bx b-agg">Aggressive</span>€73–81m (33–37%) — a substantially different picture. The discrepancy reflects two assumptions: the stressed multiple (3.0–3.5x vs. 2.5x) and whether a healthcare staffing business retains its workforce and client relationships through a restructuring process. Three enforcement scenarios are modelled (A: consensual sale 72–77% recovery; B: receivership going-concern 55–65%; C: wind-down 15–25%).</p>
+      </div>
+      <table class="data-table"><thead><tr><th>Enforcement Scenario</th><th class="r">Timeline</th><th class="r">Recovery (Presenting)</th><th class="r">Recovery (Fund Model)</th></tr></thead>
+      <tbody>
+        <tr><td>A: Accelerated consensual sale</td><td class="r">18 months</td><td class="r" style="color:var(--b-con)">72–77%</td><td class="r" style="color:var(--b-asm)">60–68%</td></tr>
+        <tr><td>B: Receivership (going concern)</td><td class="r">24–30 months</td><td class="r" style="color:var(--b-asm)">55–65%</td><td class="r" style="color:var(--b-asm)">40–52%</td></tr>
+        <tr><td>C: Wind-down</td><td class="r">36+ months</td><td class="r" style="color:var(--b-agg)">15–25%</td><td class="r" style="color:var(--b-agg)">10–18%</td></tr>
+      </tbody></table>`,
+      challenges:[
+        {risk:'Recovery Assumption',text:'The presenting team uses a 3.0–3.5x stressed EBITDA multiple for the recovery analysis. For a healthcare staffing business in distress — where workforce relationships are the primary asset and recruiter churn accelerates during restructuring — comparable distressed transactions in this sub-sector have cleared at 2.0–2.5x. Has the presenting team provided specific comparables supporting the 3.0x floor?'},
+        {risk:'Intangible Asset Base',text:'The security package primarily consists of share pledges and contract assignments. In a stress scenario, the most valuable assets — experienced recruiters and long-standing client relationships — are not pledgeable and may walk out the door. Has local insolvency counsel assessed how much business value is actually preservable in an enforcement and on what timeline?'},
+        {risk:'Super-Senior Deduction',text:'Does the recovery analysis deduct the super-senior RCF (potentially €25m drawn at enforcement) from proceeds before calculating the TL recovery? If not, the Fund\'s actual recovery in scenarios B and C could be 12–15% lower than presented.'},
+        {risk:'Enforcement Timeline',text:'A 24–30 month receivership timeline in the Netherlands is optimistic. Dutch insolvency proceedings (surseance van betaling / faillissement) can extend significantly if contested by creditors or employees. Has Dutch insolvency counsel provided a written opinion on the timeline and cost of enforcement?'}
+      ],
+      benchmarks:[
+        {title:'Senior Secured Recovery Rates — European Direct Lending',rows:[
+          {lbl:'Asset-heavy (manufacturing, real estate)',val:'70–85%'},
+          {lbl:'Asset-light / B2B services',val:'55–70%'},
+          {lbl:'Healthcare staffing (distressed comps)',val:'35–60%'},
+          {lbl:'Presenting team estimate',val:'66–77%',this:true},
+          {lbl:'Fund internal estimate',val:'33–37%',this:true},
+        ]}
+      ]
+    },
+    {
+      title:'Portfolio Fit',
+      content:`<div class="memo-body">
+        <p>The Fund's private credit allocation target is 8% of AUM (currently 5.6%, representing €650m across 12 positions). Committing €220m would bring the allocation to <span class="bx b-con">Conservative</span>7.5%, approaching target. The Fund's current private credit portfolio is weighted toward senior secured positions (83%) in defensive sectors (healthcare 31%, business services 28%, industrial 24%), with a weighted average gross yield of 9.1%. Apex Healthcare adds a healthcare exposure at a gross yield of 10.2%, above the portfolio weighted average.</p>
+        <p>However, the Fund already holds one healthcare staffing exposure: NurseConnect UK (€95m, performing, 2.8x leverage). Adding Apex would bring healthcare staffing to <span class="bx b-agg">Aggressive</span>€315m or 29% of the private credit book — above the Fund's 20% sector concentration guideline. The IC should consider reducing the commitment to approximately €125m (keeping staffing at 20% of the enlarged book) or seeking a formal IPS waiver documented in the board minutes.</p>
+      </div>`,
+      challenges:[
+        {risk:'Sector Concentration',text:'Healthcare staffing would reach 29% of the private credit book — 9pp above the IPS guideline of 20%. Approving a waiver sets a precedent. Alternatively, what is the rationale for sizing the commitment at €220m rather than a smaller amount that keeps the portfolio within guidelines?'},
+        {risk:'Correlation Risk',text:'NurseConnect UK and Apex Healthcare are both healthcare staffing businesses exposed to similar operational risks (recruiter retention, client concentration, regulatory changes). How correlated are their EBITDA profiles in a downturn — and has the IC stress-tested a scenario where both experience simultaneous stress?'},
+        {risk:'Duration',text:'The 5+1+1 maturity structure means the loan could remain outstanding for 7 years. Does the Fund\'s ALM model require the private credit sleeve to maintain a specific weighted average duration, and does a potentially 7-year commitment compress flexibility for future deployment?'},
+        {risk:'Yield vs Risk',text:'At 10.2% gross yield on a 5.2x (adjusted) / 6.2x (reported) leverage credit with a primarily intangible asset base, is the Fund being adequately compensated for the risk? The Fund\'s internal loss-adjusted yield estimate should be compared to the alternative of deploying the same capital into two smaller, lower-leverage credits at EURIBOR + 500bps.'}
+      ],
+      benchmarks:[
+        {title:'Fund Private Credit Allocation — Current vs Post-Close',rows:[
+          {lbl:'Current allocation',val:'5.6% / €650m'},
+          {lbl:'Post-close (€220m)',val:'7.5% / €870m',this:true},
+          {lbl:'IPS target',val:'8.0%'},
+          {lbl:'Healthcare staffing (current)',val:'€95m / 14.6% of book'},
+          {lbl:'Healthcare staffing (post-close)',val:'€315m / 36.2% of book',this:true},
+          {lbl:'IPS sector concentration limit',val:'20%'},
+        ]}
+      ]
+    },
+    {
+      title:'Recommendation',
+      content:`<div class="memo-body">
+        <p>The investment team recommends <strong>PROCEED — CONDITIONAL</strong> on four conditions: (i) line-by-line breakdown of the €8.2m non-recurring EBITDA addbacks with documentary evidence that each item will not recur in Year 1, or adjustment of the leverage calculation to reflect a Conservative Consolidated EBITDA figure agreed with the lenders; (ii) Belgian regulatory counsel's written assessment of the new margin cap's EBITDA impact, reflected in the forward-looking credit model; (iii) <span class="bx b-asm">Assumption</span>commitment size reduced to €195m to bring healthcare staffing concentration to approximately 22% of the enlarged private credit book — requiring a minor IPS waiver rather than a full limit breach; and (iv) equity cure provision amended to require cash injection to reduce outstanding principal rather than EBITDA addback.</p>
+        <p>The presenting team should note that the recovery analysis gap between the sponsor estimate (66–77%) and the Fund's internal model (33–37%) requires resolution before the IC can assess the true risk-adjusted yield. The loss-adjusted yield of 9.1% presented assumes the higher recovery — the Fund's internal estimate produces a loss-adjusted yield of approximately <span class="bx b-agg">Aggressive</span>7.2–7.8%, a materially different risk/return profile that the IC should price explicitly.</p>
+      </div>`,
+      challenges:[
+        {risk:'Condition Prioritisation',text:'Condition (i) — the EBITDA addback breakdown — is arguably the most important. If the addbacks are not genuinely non-recurring, the entire credit structure (leverage, covenants, pricing) is based on a higher EBITDA figure than the business can sustain. Should this condition be elevated to a go/no-go rather than a closing condition?'},
+        {risk:'Recovery Resolution',text:'The 33–44pp gap between the presenting team\'s recovery estimate and the Fund\'s internal estimate is material and unresolved. Who makes the final judgement — the investment team, an external credit counsel, or a third-party valuation expert? The answer to this question changes the risk-adjusted yield by approximately 130–190bps.'},
+        {risk:'Reduced Commitment',text:'Reducing to €195m keeps the Fund below a formal IPS breach, but the underlying concentration concern (two correlated staffing credits) remains. Is a 22% concentration in healthcare staffing materially different from 29%? The IC should consider whether the right answer is a smaller commitment or no commitment.'},
+        {risk:'Timeline Risk',text:'Healthcare staffing businesses are operationally cyclical on quarterly timelines. If the commitment closes in Q4 2026 and Q1 2027 EBITDA disappoints (post-Belgian margin cap, post-AMS integration settling), the LTM financials at first covenant test could look materially different from the basis on which the deal was approved. Should the credit agreement include a material information obligation requiring management accounts to be shared monthly in Year 1?'}
+      ],
+      benchmarks:[
+        {title:'Credit Committee Conditions — Market Practice',rows:[
+          {lbl:'EBITDA addback verification',val:'Standard (common in DL)'},
+          {lbl:'Regulatory impact assessment',val:'Standard (cross-border deals)'},
+          {lbl:'Size reduction for concentration',val:'Uncommon — reflects IPS gap',this:true},
+          {lbl:'Equity cure mechanic amendment',val:'Negotiated: ~40% success rate',this:true},
+        ]}
+      ]
+    }
+  ],
+  qa:[
+    {
+      q:'The adjusted EBITDA adds back €8.2m as "non-recurring." But the same type of charges appeared in FY2022 (€6.1m), FY2023 (€7.4m), and FY2024/LTM (€8.2m) — trending upward. How should the IC interpret this?',
+      a:`<strong>The upward trend of these "non-recurring" charges is the single most important red flag in this credit.</strong> When restructuring, integration, or system costs appear in three consecutive years with an increasing trend, they are structurally embedded in the operating model — not one-time items. The correct analytical treatment is to run the credit on <strong>reported EBITDA of €42.0m</strong>, not the adjusted figure of €50.2m.<br><br>The implications are significant: on reported EBITDA, entry leverage is <strong>6.2x</strong>, not 5.2x — placing the borrower materially above the European healthcare direct lending median of 4.8x and above the top quartile of 5.5x. It also means the maintenance leverage covenant of 6.5x provides only <strong>0.3x of headroom</strong> on the reported basis — a single quarter of underperformance triggers a breach. <br><br><strong>The IC should require the presenting team to:</strong> (1) provide a line-by-line audit of each addback with prior-year equivalent; (2) explain specifically why Year 1 will be different; and (3) agree a "Conservative Consolidated EBITDA" definition in the credit documentation that caps addbacks at no more than €3–4m annually, consistent with genuine non-recurrence.`,
+      open:true
+    },
+    {
+      q:'In a 35% EBITDA stress scenario, the presenting team estimates 66–77% recovery. The Fund\'s internal model shows 33–37%. Who is right and does it matter for the credit decision?',
+      a:`<strong>Both estimates may be wrong, but the Fund's more conservative view is better supported by comparable transactions.</strong> The presenting team's 66–77% recovery assumes a 3.0–3.5x stressed EBITDA multiple — which implies a motivated trade buyer at full market conditions during a distress scenario. Comparable distressed healthcare staffing transactions in Europe have cleared at <strong>2.0–2.5x stressed EBITDA</strong>, reflecting the reality that in a workout scenario, recruiter attrition accelerates, client contracts are put on review, and the buyer universe narrows significantly.<br><br>At 2.5x stressed EBITDA of €32.6m, and after deducting the super-senior RCF (€25m) and enforcement costs (~€8m), the recovery on the €220m TL is approximately <strong>€73–81m or 33–37%</strong>.<br><br><strong>It matters enormously for the risk-adjusted yield:</strong> the presenting team's loss-adjusted yield of 9.1% assumes ~110bps of expected loss. The Fund's recovery estimate implies expected loss closer to 250–350bps, producing a loss-adjusted yield of <strong>6.9–7.5%</strong> — which is substantially below the Fund's hurdle for this risk profile. The IC should require an independent third-party credit opinion on the recovery analysis before proceeding.`,
+      open:false
+    },
+    {
+      q:'The equity cure mechanic allows the Sponsor to add the cure amount to EBITDA rather than repay debt. Why is this a problem and should the Fund accept it?',
+      a:`<strong>This is a material structural weakness that the Fund should push back on.</strong> In a standard equity cure mechanism, the Sponsor injects cash that reduces outstanding principal — which genuinely improves leverage and DSCR. In this deal, the cure amount is <strong>added to notional EBITDA</strong> rather than used to repay debt. The effect: the business looks less leveraged on the next covenant test, but the actual debt quantum is unchanged and the business has not deleveraged.<br><br>Example: if EBITDA falls to €45m (9.0x leverage breach) and the Sponsor injects €5m, notional EBITDA becomes €50m (leverage 5.2x, cured). But the business still has €261m of debt against €45m of real EBITDA. In a subsequent stress, the cure has provided no buffer — only a 1-quarter accounting deferral.<br><br>The Fund should insist that any cure injection must: (1) reduce outstanding principal by the amount injected; and (2) not be permitted in the same period as a dividend payment. According to market data, approximately 40% of direct lenders successfully negotiate this mechanic away from the borrower-friendly EBITDA-add approach. If Meridian Partners refuses to amend this, it should be treated as a yellow flag on sponsor alignment.`,
+      open:false
+    },
+    {
+      q:'Healthcare staffing is already 14.6% of the private credit book (NurseConnect UK, €95m). Adding Apex at €220m brings it to 29% — 9pp above the IPS limit. Should the Fund proceed, reduce the ticket, or decline?',
+      a:`<strong>This is a genuine IPS conflict that the IC must resolve, not delegate to the investment team.</strong> Three options exist:<br><br><strong>Option A: Decline on concentration grounds.</strong> The cleanest answer if the IC believes the IPS limit exists for good reason and the underlying correlation risk between two European healthcare staffing credits is real. NurseConnect UK and Apex operate in overlapping markets (DACH nursing) and would face common stress factors (regulatory changes, labour cost inflation, recruiter market tightening).<br><br><strong>Option B: Reduce commitment to ~€125m.</strong> This keeps healthcare staffing at exactly 20% of the enlarged book without requiring a waiver. The trade-off: at €125m, the ticket is below typical unitranche minimum sizes for this credit profile and may require a co-investor to fill the remainder — introducing execution risk and potentially allowing a less rigorous lender to take the balance.<br><br><strong>Option C: Approve an IPS waiver at €195–220m.</strong> Requires a formal board-level IPS amendment documented in minutes. Sets a precedent for future concentration limit overrides. Only appropriate if the IC has a high-conviction view on the credit quality and is comfortable with the correlated risk alongside NurseConnect UK.<br><br><strong>The investment team's recommendation of €195m (Option C, minor waiver) is operationally convenient but does not address the underlying correlation concern.</strong> The IC should make a specific and explicit decision on whether it is comfortable holding two healthcare staffing credits simultaneously, and document the basis for that decision.`,
+      open:false
+    }
+  ]
+}
+
+}; // end DEALS
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let deal = 'nordwind';
+let sec = 0;
+let tab = 'challenges';
+
+// ─── IRR HELPER ──────────────────────────────────────────────────────────────
+function npv(rate, cfs) {
+  return cfs.reduce((s,cf,i) => s + cf / Math.pow(1+rate, i), 0);
+}
+function irr(cfs) {
+  let lo = -0.99, hi = 10, mid;
+  for(let i=0;i<200;i++){
+    mid = (lo+hi)/2;
+    if(npv(mid,cfs)>0) lo=mid; else hi=mid;
+    if(hi-lo < 0.00001) break;
+  }
+  return mid;
+}
+
+// ─── NORDWIND CALC ───────────────────────────────────────────────────────────
+function calcNW(wind, priceDelta, refiSpreads) {
+  const windF = wind==='P90'?0.92:wind==='P10'?1.06:1.0;
+  const priceAdj = priceDelta/100;
+  const refiExtra = (refiSpreads - 275)/10000;
+
+  const equity = 256;
+  const debt = 596;
+  const ebitdaBase = [78.4,81.1,84.2,86.8,89.3,91.0,92.1,75.2,71.3,80.4,84.8,88.4];
+  const debtSvc = [36.2,36.1,35.9,35.8,35.8,35.7,20.4,21.6+refiExtra*420,21.8+refiExtra*418,22.0+refiExtra*415,22.1+refiExtra*412,22.1+refiExtra*408];
+  const dsra = 18;
+
+  let cfs = [-equity];
+  let minDscr = 99;
+
+  for(let y=0;y<12;y++){
+    // Apply wind and price adjustments
+    let ebitda = ebitdaBase[y];
+    // Wind affects energy yield
+    ebitda *= (0.57 + 0.43*windF); // subsidised portion unaffected, merchant portion scaled
+    // Actually simplify: wind scales all energy output
+    ebitda = ebitdaBase[y] * windF;
+    // Price delta affects merchant portion (43% of base revenue, ~43% of EBITDA at steady margin)
+    const merchantShare = y >= 6 ? (y===6?0.5:1.0) : 0.43; // grows as subsidies expire
+    ebitda = ebitda * (1 + merchantShare * priceAdj);
+
+    const ds = debtSvc[y];
+    const dscr = ebitda / ds;
+    if(dscr < minDscr) minDscr = dscr;
+
+    const avail = Math.max(0, ebitda - ds - 2.8 - dsra*0.1);
+    const dist = dscr < 1.4 ? 0 : avail * 0.85;
+    cfs.push(y < 11 ? dist : dist + Math.max(0,(ebitda * 9.5) - debtSvc.slice(y).reduce((a,b)=>a+b,0)*3));
+  }
+  // exit value
+  const exitEBITDA = ebitdaBase[11] * windF * (1 + 0.43 * priceAdj);
+  const remainDebt = 250;
+  const exitEquity = Math.max(0, exitEBITDA * 9.5 - remainDebt);
+  cfs[12] = (cfs[12]||0) + exitEquity;
+
+  const r = irr(cfs);
+  const irrPct = Math.round(r*1000)/10;
+  const dscrRounded = Math.round(minDscr*100)/100;
+  return { irr: irrPct, dscr: dscrRounded };
+}
+
+// ─── APEX CALC ───────────────────────────────────────────────────────────────
+function calcApex(ebitdaGrowth, defaultYr, recovery) {
+  const principal = 220;
+  const deployed = 216.7; // after OID
+  const spread = 0.0575;
+  const euribor = 0.035;
+  const coupon = (spread + euribor) * principal;
+  const hold = 5;
+  const recRate = recovery / 100;
+
+  let cfs = [-deployed];
+
+  if(defaultYr === 'none') {
+    for(let y=1;y<=hold;y++) cfs.push(y===hold ? coupon + principal : coupon);
+    const g = irr(cfs);
+    const grossYield = Math.round(g*1000)/10;
+    const eloss = 0.05 * (1 - 0.65); // 5% PD, 65% rec
+    const adjYield = Math.round((g - eloss)*1000)/10;
+    return { gross: grossYield, adj: adjYield };
+  } else {
+    const dy = parseInt(defaultYr);
+    for(let y=1;y<=hold;y++){
+      if(y < dy) cfs.push(coupon);
+      else if(y === dy) { cfs.push(principal * recRate); break; }
+    }
+    const g = irr(cfs);
+    const grossYield = Math.round(g*1000)/10;
+    const adjYield = grossYield; // already reflects default
+    return { gross: grossYield, adj: adjYield };
+  }
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function setDealColor(d) {
+  document.documentElement.style.setProperty('--deal', `var(--${DEALS[d].color})`);
+}
+
+function renderNav() {
+  const d = DEALS[deal];
+  const nav = document.getElementById('section-nav');
+  nav.innerHTML = `<div class="nav-label">${d.type}</div>` +
+    d.sections.map((s,i) =>
+      `<div class="nav-item${i===sec?' active':''}" onclick="goSec(${i})">
+        <span class="nav-num">${String(i+1).padStart(2,'0')}</span>
+        <span>${s.title}</span>
+      </div>`
+    ).join('');
+}
+
+function renderContent() {
+  const s = DEALS[deal].sections[sec];
+  const inner = document.getElementById('memo-inner');
+  inner.innerHTML = `
+    <div class="section-eye">${DEALS[deal].type}</div>
+    <h1 class="section-title">${s.title}</h1>
+    ${s.content}
+  `;
+}
+
+function renderPanel() {
+  const s = DEALS[deal].sections[sec];
+  const body = document.getElementById('panel-body');
+
+  if(tab === 'challenges') {
+    body.innerHTML = s.challenges.map((c,i) =>
+      `<div class="ch-item">
+        <div class="ch-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="ch-body">
+          <div class="ch-risk">${c.risk}</div>
+          <div class="ch-text">${c.text}</div>
+        </div>
+      </div>`
+    ).join('');
+
+  } else if(tab === 'benchmarks') {
+    body.innerHTML = s.benchmarks.map(bm =>
+      `<div class="bm-card">
+        <div class="bm-title">${bm.title}</div>
+        ${bm.rows.map(r =>
+          `<div class="bm-row">
+            <span class="bm-lbl">${r.lbl}</span>
+            <span class="bm-val${r.this?' this':''}">${r.val}</span>
+          </div>`
+        ).join('')}
+      </div>`
+    ).join('');
+
+  } else {
+    const qa = DEALS[deal].qa;
+    body.innerHTML = qa.map((item,i) =>
+      `<div class="qa-item">
+        <div class="qa-q" onclick="toggleQA(${i})">
+          <span>${item.q}</span>
+          <span class="qa-arr${item.open?' open':''}" id="qa-arr-${i}">›</span>
+        </div>
+        <div class="qa-a${item.open?' open':''}" id="qa-a-${i}">${item.a}</div>
+      </div>`
+    ).join('') +
+    `<div class="qa-divider">Your Question</div>
+     <div class="qa-input-row">
+       <textarea class="qa-textarea" id="qa-input" placeholder="Type a question about this deal or memo section…" rows="3"></textarea>
+       <button class="qa-submit" onclick="sendQ()">Send to Claude →</button>
+       <div class="qa-sent" id="qa-sent">✓ Sent — Claude will respond in chat.</div>
+     </div>`;
+  }
+}
+
+function renderScenario() {
+  const bar = document.getElementById('scenario-bar');
+  if(deal === 'nordwind') {
+    bar.innerHTML = `
+      <span class="sc-label">Scenario</span>
+      <div class="sc-group">
+        <div class="sc-name">Wind Yield</div>
+        <div class="sc-toggle">
+          <button class="sc-btn active" id="w-P50" onclick="setWind('P50')">P50</button>
+          <button class="sc-btn" id="w-P90" onclick="setWind('P90')">P90</button>
+          <button class="sc-btn" id="w-P10" onclick="setWind('P10')">P10</button>
+        </div>
+      </div>
+      <div class="sc-group" style="min-width:160px">
+        <div class="sc-name">Merchant Price<span class="sc-val" id="sl-price-val">+0 €/MWh</span></div>
+        <input type="range" id="sl-price" min="-20" max="20" step="1" value="0" oninput="updateScenario()">
+      </div>
+      <div class="sc-group" style="min-width:160px">
+        <div class="sc-name">Refi Spread (Y7)<span class="sc-val" id="sl-refi-val">275 bps</span></div>
+        <input type="range" id="sl-refi" min="175" max="450" step="25" value="275" oninput="updateScenario()">
+      </div>
+      <div class="sc-out" id="sc-out"></div>
+    `;
+    updateScenario();
+  } else {
+    bar.innerHTML = `
+      <span class="sc-label">Scenario</span>
+      <div class="sc-group" style="min-width:180px">
+        <div class="sc-name">EBITDA Growth<span class="sc-val" id="sl-eg-val">+5% pa</span></div>
+        <input type="range" id="sl-eg" min="-15" max="20" step="1" value="5" oninput="updateScenario()">
+      </div>
+      <div class="sc-group">
+        <div class="sc-name">Default Scenario</div>
+        <div class="sc-toggle">
+          <button class="sc-btn active" id="dy-none" onclick="setDefault('none')">None</button>
+          <button class="sc-btn" id="dy-2" onclick="setDefault('2')">Yr 2</button>
+          <button class="sc-btn" id="dy-3" onclick="setDefault('3')">Yr 3</button>
+        </div>
+      </div>
+      <div class="sc-group" style="min-width:160px">
+        <div class="sc-name">Recovery Rate<span class="sc-val" id="sl-rec-val">65%</span></div>
+        <input type="range" id="sl-rec" min="20" max="85" step="5" value="65" oninput="updateScenario()">
+      </div>
+      <div class="sc-out" id="sc-out"></div>
+    `;
+    updateScenario();
+  }
+}
+
+let windSel = 'P50';
+let defaultSel = 'none';
+
+function setWind(w) {
+  windSel = w;
+  ['P50','P90','P10'].forEach(x => document.getElementById('w-'+x).classList.toggle('active', x===w));
+  updateScenario();
+}
+
+function setDefault(d) {
+  defaultSel = d;
+  ['none','2','3'].forEach(x => {
+    const el = document.getElementById('dy-'+x);
+    if(el) el.classList.toggle('active', x===d);
+  });
+  updateScenario();
+}
+
+function updateScenario() {
+  const out = document.getElementById('sc-out');
+  if(!out) return;
+
+  if(deal === 'nordwind') {
+    const price = parseInt(document.getElementById('sl-price').value)||0;
+    const refi = parseInt(document.getElementById('sl-refi').value)||275;
+    document.getElementById('sl-price-val').textContent = (price>=0?'+':'')+price+' €/MWh';
+    document.getElementById('sl-refi-val').textContent = refi+' bps';
+    const res = calcNW(windSel, price, refi);
+    const irrClass = res.irr >= 9 ? '' : res.irr >= 7 ? 'warn' : 'bad';
+    const dscrClass = res.dscr >= 1.35 ? '' : res.dscr >= 1.2 ? 'warn' : 'bad';
+    out.innerHTML = `
+      <div class="sc-metric">
+        <div class="sc-mlbl">Equity IRR</div>
+        <div class="sc-mval ${irrClass}">${res.irr.toFixed(1)}%</div>
+        <div class="sc-msub">Base: 9.5%</div>
+      </div>
+      <div class="sc-metric">
+        <div class="sc-mlbl">Min DSCR</div>
+        <div class="sc-mval ${dscrClass}">${res.dscr.toFixed(2)}x</div>
+        <div class="sc-msub">Cov floor: 1.35x</div>
+      </div>`;
+
+  } else {
+    const eg = parseInt(document.getElementById('sl-eg').value)||5;
+    const rec = parseInt(document.getElementById('sl-rec').value)||65;
+    document.getElementById('sl-eg-val').textContent = (eg>=0?'+':'')+eg+'% pa';
+    document.getElementById('sl-rec-val').textContent = rec+'%';
+    const res = calcApex(eg, defaultSel, rec);
+    const adjClass = res.adj >= 8 ? '' : res.adj >= 6 ? 'warn' : 'bad';
+    out.innerHTML = `
+      <div class="sc-metric">
+        <div class="sc-mlbl">Gross Yield</div>
+        <div class="sc-mval">${res.gross.toFixed(1)}%</div>
+        <div class="sc-msub">Base: 10.2%</div>
+      </div>
+      <div class="sc-metric">
+        <div class="sc-mlbl">Loss-Adj. Yield</div>
+        <div class="sc-mval ${adjClass}">${res.adj.toFixed(1)}%</div>
+        <div class="sc-msub">Target: 9.1%</div>
+      </div>`;
+  }
+}
+
+function toggleQA(i) {
+  DEALS[deal].qa[i].open = !DEALS[deal].qa[i].open;
+  const ans = document.getElementById('qa-a-'+i);
+  const arr = document.getElementById('qa-arr-'+i);
+  if(ans) ans.classList.toggle('open', DEALS[deal].qa[i].open);
+  if(arr) arr.classList.toggle('open', DEALS[deal].qa[i].open);
+}
+
+function sendQ() {
+  const txt = (document.getElementById('qa-input')||{}).value||'';
+  if(!txt.trim()) return;
+  const d = DEALS[deal];
+  const s = d.sections[sec];
+  const ctx = `[IC Prep Tool — ${d.name} / Section: ${s.title}]\n\nQuestion from IC member: ${txt}`;
+  if(typeof sendPrompt === 'function') {
+    sendPrompt(ctx);
+    const sent = document.getElementById('qa-sent');
+    if(sent) { sent.style.display='block'; setTimeout(()=>{ if(sent) sent.style.display='none'; },4000); }
+    const inp = document.getElementById('qa-input');
+    if(inp) inp.value='';
+  }
+}
+
+function switchDeal(d) {
+  deal = d; sec = 0; windSel='P50'; defaultSel='none';
+  setDealColor(d);
+  document.getElementById('rec-chip').textContent = DEALS[d].rec;
+  document.querySelectorAll('.deal-tab').forEach((el,i) => el.classList.toggle('active', (i===0&&d==='nordwind')||(i===1&&d==='apex')));
+  renderNav(); renderContent(); renderPanel(); renderScenario();
+}
+
+function goSec(i) {
+  sec = i;
+  renderNav(); renderContent(); renderPanel();
+  document.getElementById('content-area').scrollTop=0;
+}
+
+function switchTab(t) {
+  tab = t;
+  document.querySelectorAll('.panel-tab').forEach(el => el.classList.toggle('active', el.textContent.trim().toLowerCase().startsWith(t.replace('qa','q'))));
+  renderPanel();
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+setDealColor(deal);
+renderNav();
+renderContent();
+renderPanel();
+renderScenario();
+</script>
+
+</body></html>
